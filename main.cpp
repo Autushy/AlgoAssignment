@@ -1,49 +1,93 @@
-#include<iostream>
-
+#include <iostream>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
-int strlen(char []);
-int max(int a, int b);
+#define edge pair<int,int>
 
-int lcs( char *X, char *Y, int u, int v )
-{
-   if (u == 0 || v == 0)
-     return 0;
-   if ((X[u] == Y[v])&&(u>0&&v>0))
-     return 1 + lcs(X, Y, u-1, v-1);
-   else
-     return max(lcs(X, Y, u, v-1), lcs(X, Y, u-1, v));
+class Graph {
+private:
+    vector<pair<int, edge>> G; // graph
+    vector<pair<int, edge>> T; // mst
+    int *parent;
+    int V; // number of vertices/nodes in graph
+public:
+    Graph(int V);
+    void AddWeightedEdge(int u, int v, int w);
+    int find_set(int i);
+    void union_set(int u, int v);
+    void kruskal();
+    void print();
+};
+Graph::Graph(int V) {
+    parent = new int[V];
+
+    //i 0 1 2 3 4 5 6
+    //parent[i] 0 1 2 3 4 5 6
+    for (int i = 0; i < V; i++)
+        parent[i] = i;
+
+    G.clear();
+    T.clear();
 }
-
-int max(int a, int b)
-{
-    if(a>b)
-    {
-        return a;
-    }
+void Graph::AddWeightedEdge(int u, int v, int w) {
+    G.push_back(make_pair(w, edge(u, v)));
+}
+int Graph::find_set(int i) {
+    // If i is the parent of itself
+    if (i == parent[i])
+        return i;
     else
-    {
-        return b;
+        // Else if i is not the parent of itself
+        // Then i is not the representative of his set,
+        // so we recursively call Find on its parent
+        return find_set(parent[i]);
+}
+
+void Graph::union_set(int u, int v) {
+    parent[u] = parent[v];
+}
+void Graph::kruskal() {
+    int i, uRep, vRep;
+    sort(G.begin(), G.end()); // increasing weight
+    for (i = 0; i < G.size(); i++) {
+        uRep = find_set(G[i].second.first);
+        vRep = find_set(G[i].second.second);
+        if (uRep != vRep) {
+            T.push_back(G[i]); // add to tree
+            union_set(uRep, vRep);
+        }
     }
 }
-
-int strlen(char s[])
-{
-     int p;
-     for(p=1; s[p]!='\0'; p++);
-     return p;
+void Graph::print() {
+    cout << "Edge :" << " Weight" << endl;
+    for (int i = 0; i < T.size(); i++) {
+        cout << T[i].second.first << " - " << T[i].second.second << " : "
+                << T[i].first;
+        cout << endl;
+    }
 }
-
-int main()
-{
-  char X[] = "abcbdaab";
-  char Y[] = "bdcaba";
-
-  int u = strlen(X);
-  cout<<endl<<"Length of X[] is = "<<u<<endl;
-  int v = strlen(Y);
-  cout<<endl<<"Length of Y[] is = "<<v<<endl;
-
-  cout<<endl<<"Length of LCS is = "<<lcs( X, Y, u, v )<<endl;
-  return 0;
+// this is my kruskal graph
+/*          (0)----1---(1)
+          3/ |          | \7
+          /  |4        9|  \
+        (2)--|-----5----|--(6)
+         \   |          |     \6
+         7\  |          |      \
+           (3)----9----(4)--2--(5)
+*/
+int main() {
+    Graph g(6);
+    g.AddWeightedEdge(0, 1, 1);
+    g.AddWeightedEdge(0, 2, 3);
+    g.AddWeightedEdge(2, 3, 8);
+    g.AddWeightedEdge(3, 4, 4);
+    g.AddWeightedEdge(4, 5, 2);
+    g.AddWeightedEdge(5, 9, 8);
+    g.AddWeightedEdge(1, 6, 7);
+    g.AddWeightedEdge(1, 4, 9);
+    g.AddWeightedEdge(0, 3, 5);
+    g.kruskal();
+    g.print();
+    return 0;
 }
