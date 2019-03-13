@@ -1,93 +1,66 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
+#include <cstring>
+#define V 5
+#define INF 9999999
 using namespace std;
 
-#define edge pair<int,int>
-
-class Graph {
-private:
-    vector<pair<int, edge>> G; // graph
-    vector<pair<int, edge>> T; // mst
-    int *parent;
-    int V; // number of vertices/nodes in graph
-public:
-    Graph(int V);
-    void AddWeightedEdge(int u, int v, int w);
-    int find_set(int i);
-    void union_set(int u, int v);
-    void kruskal();
-    void print();
+int G[V][V] = {
+  {0, 2, 0, 5, 0},
+  {2, 0, 3, 9, 5},
+  {0, 3, 0, 0, 7},
+  {6, 9, 0, 0, 8},
+  {0, 6, 7, 8, 0}
 };
-Graph::Graph(int V) {
-    parent = new int[V];
 
-    //i 0 1 2 3 4 5 6
-    //parent[i] 0 1 2 3 4 5 6
-    for (int i = 0; i < V; i++)
-        parent[i] = i;
+int main () {
 
-    G.clear();
-    T.clear();
-}
-void Graph::AddWeightedEdge(int u, int v, int w) {
-    G.push_back(make_pair(w, edge(u, v)));
-}
-int Graph::find_set(int i) {
-    // If i is the parent of itself
-    if (i == parent[i])
-        return i;
-    else
-        // Else if i is not the parent of itself
-        // Then i is not the representative of his set,
-        // so we recursively call Find on its parent
-        return find_set(parent[i]);
-}
+  int no_edge;
 
-void Graph::union_set(int u, int v) {
-    parent[u] = parent[v];
-}
-void Graph::kruskal() {
-    int i, uRep, vRep;
-    sort(G.begin(), G.end()); // increasing weight
-    for (i = 0; i < G.size(); i++) {
-        uRep = find_set(G[i].second.first);
-        vRep = find_set(G[i].second.second);
-        if (uRep != vRep) {
-            T.push_back(G[i]); // add to tree
-            union_set(uRep, vRep);
+
+  int selected[V];
+
+
+  memset (selected, false, sizeof (selected));
+
+
+  no_edge = 0;
+
+
+  selected[0] = true;
+
+  int x;
+  int y;
+
+
+  cout << "Edge" << " : " << "Weight";
+  cout << endl;
+  while (no_edge < V - 1) {
+
+
+
+      int min = INF;
+      x = 0;
+      y = 0;
+
+      for (int i = 0; i < V; i++) {
+        if (selected[i]) {
+            for (int j = 0; j < V; j++) {
+              if (!selected[j] && G[i][j]) {
+                  if (min > G[i][j]) {
+                      min = G[i][j];
+                      x = i;
+                      y = j;
+                  }
+
+              }
+          }
         }
+      }
+      cout << x <<  " - " << y << " :  " << G[x][y];
+      cout << endl;
+      selected[y] = true;
+      no_edge++;
     }
-}
-void Graph::print() {
-    cout << "Edge :" << " Weight" << endl;
-    for (int i = 0; i < T.size(); i++) {
-        cout << T[i].second.first << " - " << T[i].second.second << " : "
-                << T[i].first;
-        cout << endl;
-    }
-}
-// this is my kruskal graph
-/*          (0)----1---(1)
-          3/ |          | \7
-          /  |4        9|  \
-        (2)--|-----5----|--(6)
-         \   |          |     \6
-         7\  |          |      \
-           (3)----9----(4)--2--(5)
-*/
-int main() {
-    Graph g(6);
-    g.AddWeightedEdge(0, 1, 1);
-    g.AddWeightedEdge(0, 2, 3);
-    g.AddWeightedEdge(2, 3, 8);
-    g.AddWeightedEdge(3, 4, 4);
-    g.AddWeightedEdge(4, 5, 2);
-    g.AddWeightedEdge(5, 9, 8);
-    g.AddWeightedEdge(1, 6, 7);
-    g.AddWeightedEdge(1, 4, 9);
-    g.AddWeightedEdge(0, 3, 5);
-    g.kruskal();
-    g.print();
-    return 0;
+
+  return 0;
 }
